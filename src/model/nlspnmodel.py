@@ -14,7 +14,7 @@
 
 
 from .common import *
-from .modulated_deform_conv_func import ModulatedDeformConvFunction
+from .deform_conv_backend import modulated_deform_conv2d
 import torch
 import torch.nn as nn
 
@@ -38,6 +38,7 @@ class NLSPN(nn.Module):
 
         self.args = args
         self.prop_time = self.args.prop_time
+        self.dcn_backend = getattr(args, 'dcn_backend', 'legacy_dcn')
         self.affinity = self.args.affinity
 
         self.ch_g = ch_g
@@ -135,10 +136,11 @@ class NLSPN(nn.Module):
                     offset_tmp[:, 1, :, :] = \
                         offset_tmp[:, 1, :, :] + ww - (self.k_f - 1) / 2
 
-                conf_tmp = ModulatedDeformConvFunction.apply(
+                conf_tmp = modulated_deform_conv2d(
                     confidence, offset_tmp, modulation_dummy, self.w_conf,
                     self.b, self.stride, 0, self.dilation, self.groups,
-                    self.deformable_groups, self.im2col_step)
+                    self.deformable_groups, self.im2col_step,
+                    backend=self.dcn_backend)
                 list_conf.append(conf_tmp)
 
             conf_aff = torch.cat(list_conf, dim=1)
@@ -164,9 +166,10 @@ class NLSPN(nn.Module):
         return offset, aff
 
     def _propagate_once(self, feat, offset, aff):
-        feat = ModulatedDeformConvFunction.apply(
+        feat = modulated_deform_conv2d(
             feat, offset, aff, self.w, self.b, self.stride, self.padding,
-            self.dilation, self.groups, self.deformable_groups, self.im2col_step
+            self.dilation, self.groups, self.deformable_groups, self.im2col_step,
+            backend=self.dcn_backend
         )
 
         return feat

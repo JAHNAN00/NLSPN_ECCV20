@@ -46,6 +46,8 @@ Our paper is available in [ECCV 2020 Proceedings](http://www.ecva.net/papers/ecc
 
 ### Dependencies
 
+本机现代环境的 NYU 随机权重测速入口见 [BENCHMARK.md](BENCHMARK.md)：独立 Conda 环境 `NLSPN`，torchvision DCN，无需 Apex 或预训练权重。下方保留原作者的训练环境说明。
+
 Our released implementation is tested on:
 
 - Ubuntu 16.04 / Ubuntu 18.04

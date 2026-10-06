@@ -2,3 +2,6 @@ __pycache__/
 *.pyc
 .idea/
 experiments/
+/outputs/
+/data/
+.pytest_cache/
